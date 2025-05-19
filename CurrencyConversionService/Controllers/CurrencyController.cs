@@ -35,17 +35,17 @@ namespace CurrencyConversionService.Controllers
                 return BadRequest("Invalid input parameters.");
             }
 
-            var currency = dbContext.Currencies.FirstOrDefault(c => c.Code.Equals(fromCurrency, StringComparison.OrdinalIgnoreCase));
+            var currency = dbContext.Currencies.FirstOrDefault(c => c.Code.ToLower() == fromCurrency.ToLower());
             if (currency == null)
             {
                 return NotFound($"Currency '{fromCurrency}' not found.");
             }
 
             decimal conversionRate = currency.Rate;
-            decimal convertedAmount = amount * conversionRate;
+            decimal convertedAmount = amount * conversionRate / 100;
 
             DbService dbService = new DbService(dbContext);
-            dbService.SaveConversion(fromCurrency, "DKK", conversionRate, DateTime.UtcNow);
+            dbService.SaveConversion(fromCurrency, amount, "DKK", convertedAmount, conversionRate, DateTime.UtcNow);
             return Ok(new { ConvertedAmount = convertedAmount, CurrencyCode = "DKK" });
         }
     }

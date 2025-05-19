@@ -12,11 +12,11 @@ namespace CurrencyConversionService.Services
             this.dbContext = dbContext;
         }
 
-        public async Task SaveConversion(string fromCurrency, string toCurrency, decimal rate, DateTime dateTime)
+        public async Task SaveConversion(string fromCurrency, decimal fromAmount, string toCurrency, decimal toAmount, decimal rate, DateTime dateTime)
         {
             try
             {
-                dbContext.Add(new Conversions(fromCurrency, toCurrency, rate, dateTime));
+                dbContext.Add(new Conversions(fromCurrency, fromAmount, toCurrency, toAmount, rate, dateTime));
                 await dbContext.SaveChangesAsync();
             }
             catch (Exception ex) { }
