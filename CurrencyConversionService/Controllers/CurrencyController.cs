@@ -10,18 +10,16 @@ namespace CurrencyConversionService.Controllers
     public class CurrencyController : ControllerBase
     {
         private readonly CurrencyDbContext dbContext;
-        private readonly DbService dbService;
-
-        public CurrencyController(CurrencyDbContext dbContext, DbService dbService)
+        public CurrencyController(CurrencyDbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.dbService = dbService;
         }
 
-        [HttpGet]
+        [HttpGet("/rate")]
         public IActionResult GetLatestDanishKronesRate(string fromCurrency)
         {
-            var currency = dbContext.Currencies.FirstOrDefault(c => c.Code.Equals(fromCurrency, StringComparison.OrdinalIgnoreCase));
+            var currency = dbContext.Currencies.FirstOrDefault(c => c.Code.ToLower() == fromCurrency.ToLower());
+
             if (currency == null)
             {
                 return NotFound("Currency 'DKK' not found.");
@@ -29,7 +27,7 @@ namespace CurrencyConversionService.Controllers
             return Ok(new { Rate = currency.Rate, LastUpdated = currency.LastUpdated });
         }
 
-        [HttpGet]
+        [HttpGet("/convert")]
         public IActionResult ConvertToDanishKrones(string fromCurrency, decimal amount)
         {
             if (string.IsNullOrEmpty(fromCurrency) || amount <= 0)
@@ -46,6 +44,7 @@ namespace CurrencyConversionService.Controllers
             decimal conversionRate = currency.Rate;
             decimal convertedAmount = amount * conversionRate;
 
+            DbService dbService = new DbService(dbContext);
             dbService.SaveConversion(fromCurrency, "DKK", conversionRate, DateTime.UtcNow);
             return Ok(new { ConvertedAmount = convertedAmount, CurrencyCode = "DKK" });
         }

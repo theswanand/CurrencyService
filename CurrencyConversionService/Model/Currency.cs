@@ -14,5 +14,7 @@
             Rate = rate;
             LastUpdated = lastUpdated;
         }
+
+        public Currency() { }
     }
 }
